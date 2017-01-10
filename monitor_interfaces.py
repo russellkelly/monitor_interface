@@ -49,7 +49,7 @@ def parse_args(argv):
     parser.add_option('--safe', help='This option enables configurations to be backed up before running the program and restored upon exiting (Thus keeping the load-interval commands as previous).  Default is off.', dest='safe', default=False, action='store_true')    
     parser.add_option('-u', help='Username. Mandatory option', dest='username', action='store')
     parser.add_option('-p', help='Password. Mandatory option', dest='password', action='store')
-    parser.add_option('-l', help='load-interval rate. Default is 5 seconds.  Values 5-300', dest='load_interval', type=int, default=5, action='store')
+    parser.add_option('-l', help='explicit interface load-interval rate. If set then every interesting interface has its load-interval set, and subsequently removed when packet-rate drops below 2pps. Values 5-300.  By default the programs sets the system default load-interval to 5', dest='load_interval', type=int, default=False, action='store')
     parser.add_option('-r', help='min packet rate.  Any interface with a rate above this will report status. Default is 2 pps.', dest='ppsrate', type=int, default=2, action='store')
     parser.add_option('-a', help='One or more hostnames (or IP addresses) of the switches to poll.  Comma separated.  Mandatory option with multiple arguments', dest='hostnames', action='store')
     parser.add_option('-i', help='optional argument with multiple arguments.  Ethernet Ports Only- Format: Ethernet<num>, or Eth<num>, comma separated, or range separated with' '-' ' e.g. Eth21-45 or Eth1,Eth7,Eth21-45', dest='interfaces', action='store')
@@ -150,7 +150,10 @@ class load_rate(Process):
     def run(self):
         while True:
             self.safe, self.interface_list, self.nodes, self.switches, self.hostname_list, self.mbps, self.load_interval, self.ppsrate, self.pkts = parse_args(sys.argv[1:])
-            self.set_load_rate(self.switches, self.load_interval, self.ppsrate)
+            if self.load_interval:
+                self.set_load_rate(self.switches, self.load_interval, self.ppsrate)
+            else:
+                pass
     def set_load_rate(self, switches, load_interval, ppsrate):
         self.load_interval = load_interval
         self.ppsrate = ppsrate
@@ -354,9 +357,12 @@ if __name__ == "__main__":
     print "\n\nStarting....Getting Existing Configurations and parsing.....\n\n"
     #ExistingLoadRates = collections.defaultdict(dict)
     safe, interface_list, nodes, switches, hostname_list, mbps, load_interval, ppsrate, pkts  = parse_args(sys.argv[1:])
+    if load_interval == False:
+        for node in nodes:
+            output1 = node.execute(['enable', 'configure', 'load-interval default 5']) 
     if safe:
         for node in nodes:
-            output = node.execute(['enable', 'copy running-config file:mnt/flash/mon_int_config']) 
+            output = node.execute(['enable', 'copy running-config file:mnt/flash/mon_int_config'])
     p1 = counter()
     p1.start()
     p2 = load_rate()
@@ -369,6 +375,8 @@ if __name__ == "__main__":
         p2.terminate()
         p1.terminate()
         print "\n\n Exiting the Interface Monitoring Program........ \n\n"
+        for node in nodes:
+            output1 = node.execute(['enable', 'configure', 'no load-interval default 5']) 
         if safe:
             print "\n\n Restoring original interface configurations.....\n\n"
             for node in nodes:
