@@ -84,6 +84,7 @@ def parse_args(argv):
                     if x.isalpha():
                         y = interface.split(x)
                         interface_list_parsed.append("Ethernet"+ str(y[1]))
+                        break
         interface_list_remove = []   
         for interface in interface_list_parsed:
             if '-' in interface:
@@ -214,8 +215,7 @@ class counter(Process):
                 sys.stdout = self.f
                 if self.mbps == False and self.pkts == False:
                     for switch in switches.values():
-                        intf = switch.runCmds ( 1, [ "show interfaces counters rates" ] )
-                        values = intf[0][ "interfaces" ]
+                        intf = switch.runCmds ( 1, [ "show interfaces" ] )
                         if self.interface_list == []:
                             ports = intf[0][ "interfaces" ].keys()
                             ports.sort()
@@ -230,11 +230,14 @@ class counter(Process):
                         print "==============================================\n\n"
                         for p in ports:
                             try:
-                                if  intf[0][ "interfaces" ][p][ "inPpsRate"] > self.ppsrate and p != str('Management1'):
+                                if  p != str('Management1'):
+                                    if intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] > self.ppsrate or intf[0][ "interfaces" ][p]["interfaceStatistics"][ "outPktsRate"] > self.ppsrate:
                                         j +=1
-                                        print("{:<20}{:>10}{:>15}\n".format(p, int(intf[0][ "interfaces" ][p][ "inPpsRate" ]), int(intf[0][ "interfaces" ][p]['outPpsRate'])))
-                                else:
+                                        print("{:<20}{:>10}{:>15}\n".format(p, int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] ), int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "outPktsRate"] )))
+                                    else:
                                         pass
+                                else:
+                                    pass
                             except KeyError:
                                 pass        
                         if j == 0:
@@ -258,11 +261,14 @@ class counter(Process):
                         for p in ports:
                             try:
                                 if intf[0][ "interfaces" ][p]["interfaceStatistics"]:
-                                    if intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] > self.ppsrate and p != str('Management1'):
-                                        j += 1
-                                        print("{:<25}{:>15}{:>15}{:>20}{:>15}\n".format(p, int(intf[0][ "interfaces" ][p]["interfaceCounters"][ "inUcastPkts"]), int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] ), int(intf[0][ "interfaces" ][p]["interfaceCounters"][ "outUcastPkts"]), int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "outPktsRate"])))
-                                else:
-                                    pass
+                                    if  p != str('Management1'):
+                                        if intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] > self.ppsrate or intf[0][ "interfaces" ][p]["interfaceStatistics"][ "outPktsRate"] > self.ppsrate:
+                                            j += 1
+                                            print("{:<25}{:>15}{:>15}{:>20}{:>15}\n".format(p, int(intf[0][ "interfaces" ][p]["interfaceCounters"][ "inUcastPkts"]), int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] ), int(intf[0][ "interfaces" ][p]["interfaceCounters"][ "outUcastPkts"]), int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "outPktsRate"])))
+                                        else:
+                                            pass
+                                    else:
+                                        pass
                             except KeyError:
                                 pass
                         if j == 0:
@@ -286,25 +292,28 @@ class counter(Process):
                         for p in ports:
                             try:
                                 if intf[0][ "interfaces" ][p]["interfaceStatistics"]:
-                                    if intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] > self.ppsrate and p != str('Management1'):
-                                        j += 1
-                                        print("{:<20}{:>15}{:>10}{:>15}{:>20}{:>10}{:>15}\n".format(p, int(intf[0][ "interfaces" ][p]["interfaceCounters"][ "inUcastPkts"]), int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] ), int((intf_counters[0][ "interfaces" ][p][ "inBpsRate" ])/1000),int(intf[0][ "interfaces" ][p]["interfaceCounters"][ "outUcastPkts"]), int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "outPktsRate"]), int((intf_counters[0][ "interfaces" ][p][ "outBpsRate" ])/1000)))
-                                else:
-                                    pass
+                                    if  p != str('Management1'):
+                                        if intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] > self.ppsrate or intf[0][ "interfaces" ][p]["interfaceStatistics"][ "outPktsRate"] > self.ppsrate:
+                                            j += 1
+                                            print("{:<20}{:>15}{:>10}{:>15}{:>20}{:>10}{:>15}\n".format(p, int(intf[0][ "interfaces" ][p]["interfaceCounters"][ "inUcastPkts"]), int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] ), int((intf_counters[0][ "interfaces" ][p][ "inBpsRate" ])/1000),int(intf[0][ "interfaces" ][p]["interfaceCounters"][ "outUcastPkts"]), int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "outPktsRate"]), int((intf_counters[0][ "interfaces" ][p][ "outBpsRate" ])/1000)))
+                                        else:
+                                            pass
+                                    else:
+                                        pass
                             except KeyError:
                                 pass
                         if j == 0:
                                 print "\n======================================================================================\n\nMan there aint no traffic through this switch, or at least the interfaces of interest \n\n======================================================================================\n\n"         
                 elif self.mbps == True and self.pkts == False:
                     for switch in switches.values():
-                        intf = switch.runCmds ( 1, [ "show interfaces counters rates" ] )
+                        intf = switch.runCmds ( 1, [ "show interfaces" ] )
+                        intf_counters = switch.runCmds ( 1, [ "show interfaces counters rates" ] )
                         if self.interface_list == []:     
                             ports = intf[0][ "interfaces" ].keys()
                             ports.sort()
                         else:
                             ports = self.interface_list
                             ports.sort()     
-                        values = intf[0][ "interfaces" ]
         
                         j = 0
                         for key, value in switches.items():
@@ -313,11 +322,17 @@ class counter(Process):
                         print("{:<20}{:>10}{:>15}{:>20}{:>15}\n".format("Interface", "Input PPS", "Input KBps", "Output PPS", "Output KBps"))
                         print "=================================================================================\n\n"
                         for p in ports:
-                                if  intf[0][ "interfaces" ][p][ "inPpsRate"] > self.ppsrate and p != str('Management1'):
+                            try:
+                                if  p != str('Management1'):
+                                    if intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] > self.ppsrate or intf[0][ "interfaces" ][p]["interfaceStatistics"][ "outPktsRate"] > self.ppsrate:
                                         j +=1
-                                        print("{:<20}{:>10}{:>15}{:>20}{:>15}\n".format(p, int(intf[0][ "interfaces" ][p][ "inPpsRate" ]), int((intf[0][ "interfaces" ][p][ "inBpsRate" ])/1000), int(intf[0][ "interfaces" ][p]['outPpsRate']), int((intf[0][ "interfaces" ][p][ "outBpsRate" ])/1000)))
-                                else:
+                                        print("{:<20}{:>10}{:>15}{:>20}{:>15}\n".format(p, int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "inPktsRate"] ), int((intf_counters[0][ "interfaces" ][p][ "inBpsRate" ])/1000), int(intf[0][ "interfaces" ][p]["interfaceStatistics"][ "outPktsRate"] ), int((intf_counters[0][ "interfaces" ][p][ "outBpsRate" ])/1000)))
+                                    else:
                                         pass
+                                else:
+                                    pass
+                            except KeyError:
+                                pass    
                         if j == 0:
                                 print "\n======================================================================================\n\nMan there aint no traffic through this switch, or at least the interfaces of interest \n\n======================================================================================\n\n"
 
