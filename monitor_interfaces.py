@@ -241,7 +241,7 @@ class counter(Process):
                             except KeyError:
                                 pass        
                         if j == 0:
-                                print "\n======================================================================================\n\nMan there aint no traffic through this switch, or at least the interfaces of interest \n\n======================================================================================\n\n"
+                                print "\n==============================================================================================\n\nMan, there aint no traffic through this switch, or at least through the interfaces of interest \n\n==============================================================================================\n\n"
                 elif self.mbps == False and self.pkts == True:
                     for switch in switches.values():
                         intf = switch.runCmds ( 1, [ "show interfaces" ] )
@@ -272,7 +272,7 @@ class counter(Process):
                             except KeyError:
                                 pass
                         if j == 0:
-                                print "\n======================================================================================\n\nMan there aint no traffic through this switch, or at least the interfaces of interest \n\n======================================================================================\n\n"          
+                                print "\n==============================================================================================\n\nMan, there aint no traffic through this switch, or at least through the interfaces of interest \n\n==============================================================================================\n\n"          
                 elif self.mbps == True and self.pkts == True:
                     for switch in switches.values():
                         intf = switch.runCmds ( 1, [ "show interfaces" ] )
@@ -303,7 +303,7 @@ class counter(Process):
                             except KeyError:
                                 pass
                         if j == 0:
-                                print "\n======================================================================================\n\nMan there aint no traffic through this switch, or at least the interfaces of interest \n\n======================================================================================\n\n"         
+                                print "\n==============================================================================================\n\nMan, there aint no traffic through this switch, or at least through the interfaces of interest \n\n==============================================================================================\n\n"     
                 elif self.mbps == True and self.pkts == False:
                     for switch in switches.values():
                         intf = switch.runCmds ( 1, [ "show interfaces" ] )
@@ -334,7 +334,7 @@ class counter(Process):
                             except KeyError:
                                 pass    
                         if j == 0:
-                                print "\n======================================================================================\n\nMan there aint no traffic through this switch, or at least the interfaces of interest \n\n======================================================================================\n\n"
+                                print "\n==============================================================================================\n\nMan, there aint no traffic through this switch, or at least through the interfaces of interest \n\n==============================================================================================\n\n"
 
                 sys.stdout.close()
                 sys.stdout = self.oldstdout
