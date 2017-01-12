@@ -6,8 +6,7 @@ This script continually monitors interfaces in one, or more Arista devices.
 I was a fan of the "old school" command in Junos and wanted an improved version:
 
 ```
-monitor interface traffic
-
+'monitor interface traffic'
 ```
 I created this program to allow one or a number of switches to be monitored at once, running on-box or off, and monitoring multiple defined interfaces, or all, and define variables like packet count, min packet rate to  show etc.  
 
