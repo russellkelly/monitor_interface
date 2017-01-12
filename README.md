@@ -1,7 +1,17 @@
 # monitor_interface
 Monitor Interfaces Command for Arista Devices
 
-This script continually monitors interfaes in one, or more arista devices. I was a fan of the "old school" 'monitor interface traffic' command in Junos and wanted an improved version.  I created this program to allow a number of switches, runnin on-box or off and monitoring multiple devices at once.  See the help below:
+This script continually monitors interfaces in one, or more Arista devices. 
+
+I was a fan of the "old school" command in Junos and wanted an improved version:
+
+```
+monitor interface traffic
+
+```
+I created this program to allow one or a number of switches to be monitored at once, running on-box or off, and monitoring multiple defined interfaces, or all, and define variables like packet count, min packet rate to  show etc.  
+
+See the help below:
 
 ```
 Usage: monitor_interfaces.py [options]
